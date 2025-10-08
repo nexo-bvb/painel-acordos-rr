@@ -117,6 +117,111 @@ export const TermosTable: React.FC = () => {
     doc.save(fileName);
   };
 
+  // Função para exportar múltiplos acordos selecionados
+  const exportSelectedToPDF = () => {
+    if (selectedRows.size === 0) return;
+    
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+    const margin = 20;
+    const lineHeight = 7;
+    let yPosition = 20;
+    let isFirstAcordo = true;
+    
+    // Título principal
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('TERMOS DE COOPERAÇÃO TÉCNICA - ESTADO DE RORAIMA', pageWidth / 2, yPosition, { align: 'center' });
+    yPosition += 15;
+    
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Documentos Selecionados: ${selectedRows.size}`, pageWidth / 2, yPosition, { align: 'center' });
+    yPosition += 20;
+    
+    // Separador
+    doc.setLineWidth(0.5);
+    doc.line(margin, yPosition, pageWidth - margin, yPosition);
+    yPosition += 15;
+    
+    // Função para adicionar texto com quebra de linha
+    const addText = (label: string, value: string, isBold = false, fontSize = 10) => {
+      if (!value || value === '-') return;
+      
+      doc.setFontSize(fontSize);
+      doc.setFont('helvetica', isBold ? 'bold' : 'normal');
+      
+      // Label
+      doc.text(label + ':', margin, yPosition);
+      yPosition += lineHeight;
+      
+      // Value (com quebra de linha)
+      const maxWidth = pageWidth - (margin * 2);
+      const lines = doc.splitTextToSize(value, maxWidth);
+      
+      doc.setFont('helvetica', 'normal');
+      doc.text(lines, margin + 5, yPosition);
+      yPosition += (lines.length * lineHeight) + 5;
+      
+      // Verificar se precisa de nova página
+      if (yPosition > doc.internal.pageSize.height - 30) {
+        doc.addPage();
+        yPosition = 20;
+      }
+    };
+    
+    // Processar cada acordo selecionado
+    selectedRows.forEach((index) => {
+      const acordo = filteredAcordos[index];
+      if (!acordo) return;
+      
+      // Título do acordo (se não for o primeiro)
+      if (!isFirstAcordo) {
+        yPosition += 10;
+        doc.setLineWidth(0.3);
+        doc.line(margin, yPosition, pageWidth - margin, yPosition);
+        yPosition += 15;
+        
+        // Verificar se precisa de nova página
+        if (yPosition > doc.internal.pageSize.height - 100) {
+          doc.addPage();
+          yPosition = 20;
+        }
+      }
+      
+      // Título do acordo
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`TERMO ${index + 1} - ${acordo.ano || 'Sem Ano'}`, pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 15;
+      
+      // Dados do acordo
+      addText('Processo', acordo.processo || '');
+      addText('Instrumento', acordo.instrumento || '');
+      addText('Partes Envolvidas', acordo.partes || '');
+      addText('Objeto', acordo.objeto || '');
+      addText('Data de Assinatura/Publicação', acordo.data_assinatura_publicação || '');
+      addText('Término de Vigência', acordo.término_de_vigência || '');
+      addText('Consulta Pública SEI', acordo.consulta_pública_sei || '');
+      
+      isFirstAcordo = false;
+    });
+    
+    // Rodapé
+    yPosition += 20;
+    doc.setLineWidth(0.5);
+    doc.line(margin, yPosition, pageWidth - margin, yPosition);
+    yPosition += 10;
+    
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'italic');
+    doc.text('Documento gerado em: ' + new Date().toLocaleDateString('pt-BR'), pageWidth / 2, yPosition, { align: 'center' });
+    
+    // Salvar PDF
+    const fileName = `termos_cooperacao_selecionados_${selectedRows.size}_${new Date().toISOString().split('T')[0]}.pdf`;
+    doc.save(fileName);
+  };
+
 
   // Função para selecionar/deselecionar linha
   const toggleRowSelection = (index: number) => {
@@ -205,27 +310,36 @@ export const TermosTable: React.FC = () => {
     <div className="table-panel">
           {/* Cabeçalho removido */}
 
-      {/* Barra de busca e filtros */}
-      <div className="search-bar">
-        <div className="search-input-container">
-          <input
-            type="text"
-            placeholder="Buscar em todos os campos..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
-          <span className="search-icon">🔍</span>
-        </div>
-        
-        <div className="selection-info">
-          {selectedRows.size > 0 && (
-            <span className="selected-count">
-              {selectedRows.size} selecionado(s)
-            </span>
-          )}
-        </div>
-      </div>
+          {/* Barra de busca e filtros */}
+          <div className="search-bar">
+            <div className="search-input-container">
+              <input
+                type="text"
+                placeholder="Buscar em todos os campos..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-input"
+              />
+              <span className="search-icon">🔍</span>
+            </div>
+            
+            <div className="selection-info">
+              {selectedRows.size > 0 && (
+                <>
+                  <span className="selected-count">
+                    {selectedRows.size} selecionado(s)
+                  </span>
+                  <button 
+                    className="export-selected-button"
+                    onClick={exportSelectedToPDF}
+                    title="Exportar selecionados para PDF"
+                  >
+                    📄 Exportar Selecionados
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
 
       {/* Tabela */}
       <div className="table-container">

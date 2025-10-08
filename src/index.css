@@ -202,6 +202,9 @@ body {
 .selection-info {
   font-size: 0.875rem;
   color: #6c757d;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .selected-count {
@@ -210,6 +213,25 @@ body {
   padding: 0.25rem 0.75rem;
   border-radius: 4px;
   font-weight: 500;
+}
+
+.export-selected-button {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.export-selected-button:hover {
+  background: #218838;
 }
 
 /* Container da tabela */
