@@ -36,7 +36,7 @@ export const useAcordos = (): UseAcordosReturn => {
       setError(null);
 
       // Buscar o arquivo CSV
-      const response = await fetch('/src/data/Acordos_sem_onus_Roraima.csv');
+      const response = await fetch('/Acordos_sem_onus_Roraima.csv');
       
       if (!response.ok) {
         throw new Error(`Erro ao carregar arquivo: ${response.status}`);
