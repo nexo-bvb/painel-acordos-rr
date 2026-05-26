@@ -421,8 +421,7 @@ export const TermosTable: React.FC = () => {
       {/* Rodapé informativo */}
       <div className="panel-footer">
         <p>
-          Painel de consulta aos termos de cooperação técnicas do estado de Roraima. 
-          Dados atualizados em tempo real.
+          Painel de consulta aos termos de cooperação técnicas do estado de Roraima.
         </p>
       </div>
 
